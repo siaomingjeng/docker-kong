@@ -343,6 +343,12 @@ local script = [=[
 # replace the entry point
 mv /docker-entrypoint.sh /old-entrypoint.sh
 
+# Add buffer in nginx for OIDC
+file='/usr/local/share/lua/5.1/kong/templates/nginx_kong.lua'
+grep '^lua_shared_dict\s.*introspection\s.*;$' $file || sed -ri '/^lua_shared_dict\s.*kong\s.*;$/a lua_shared_dict introspection       8m;' $file
+grep '^lua_shared_dict\s.*jwks\s.*;$' $file || sed -ri '/^lua_shared_dict\s.*kong\s.*;$/a lua_shared_dict jwks                8m;' $file
+grep '^lua_shared_dict\s.*discovery\s.*;$' $file || sed -ri '/^lua_shared_dict\s.*kong\s.*;$/a lua_shared_dict discovery           5m;' $file
+
 ################### new entrypoint script ###################
 cat <<'EOF' >> /docker-entrypoint.sh
 #!/bin/sh
